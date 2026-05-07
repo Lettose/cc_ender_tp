@@ -24,7 +24,7 @@ function tpServer()
             os.sleep(2)
             rsset("back",15)
             
-            Print("Done!")
+            print("Done!")
         else
             print("Invalid Request")
         end
