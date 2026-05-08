@@ -105,7 +105,6 @@ function loadData()
 end
 
 function sendRequest(tp_server,user)
-    os.sleep(2)
     local server_id = rednet.lookup(tp_protocol,tp_server)
     rednet.send(server_id,user,"tp_request")
 end
@@ -115,7 +114,6 @@ function drawEntry(height,bcolor)
 
     box(8,height,x-8,height+3,bcolor)
     line(8,height,x-8,height,colors.lightGray)
-    line(x-10,height,x-8,height,colors.lightGray)
     
     pos(x-9,height)
     tCol(colors.gray)
@@ -123,8 +121,39 @@ function drawEntry(height,bcolor)
     write("x")
 end
 
-function centerPrint(printstr,height)
-    printstr = string.sub(printstr,1,9)
+function drawConfirmMenu(location)
+    pos(1,1)
+    box(1,1,x,y,colors.black) -- Background
+
+    box(6,(y/2)-3,x-6,(y/2)+3,colors.gray)
+    line(6,(y/2)-3,x-6,(y/2)-3,colors.lightGray)
+
+    tCol(colors.orange)    
+    bCol(colors.gray)
+    centerPrint("TP "..location,(y/2)-1,20)
+
+    tCol(colors.lightGray)    
+    bCol(colors.gray)
+    centerPrint("Are you sure?",(y/2),20)
+
+    box(9,(y/2)+2,11,(y/2)+2,colors.red)
+    box(15,(y/2)+2,17,(y/2)+2,colors.green)
+
+    pos(10,(y/2)+2)
+    tCol(colors.white)    
+    bCol(colors.red)
+    write("x")
+
+    pos(16,(y/2)+2)
+    tCol(colors.white)    
+    bCol(colors.green)
+    write("o")
+end
+
+function centerPrint(printstr,height,sub_len)
+    sub_len = sub_len or 9
+
+    printstr = string.sub(printstr,1,sub_len)
     local str_len = string.len(printstr)
 
     pos(math.ceil((x-str_len)/2),height)
@@ -241,8 +270,10 @@ function homeMenuLoop()
                     user_data.tp1 = string.sub(read(),1,9)
 
                     saveData(user_data)
-                else
-                    sendRequest(user_data.tp1,user_data.username)
+                elseif tp_state.tp1 == "avail" then
+                    if confirmMenuLoop(user_data.tp1) then
+                        sendRequest(user_data.tp1,user_data.username)
+                    end
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 5 and button == 1 then
                 local user_data = loadData()
@@ -264,8 +295,10 @@ function homeMenuLoop()
                     user_data.tp2 = string.sub(read(),1,9)
 
                     saveData(user_data)
-                else
-                    sendRequest(user_data.tp2,user_data.username)
+                elseif tp_state.tp2 == "avail" then
+                    if confirmMenuLoop(user_data.tp2) then
+                        sendRequest(user_data.tp2,user_data.username)
+                    end
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 10 and button == 1 then
                 local user_data = loadData()
@@ -287,8 +320,10 @@ function homeMenuLoop()
                     user_data.tp3 = string.sub(read(),1,9)
 
                     saveData(user_data)
-                else
-                    sendRequest(user_data.tp3,user_data.username)
+                elseif tp_state.tp3 == "avail" then
+                    if confirmMenuLoop(user_data.tp3) then
+                        sendRequest(user_data.tp3,user_data.username)
+                    end
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 15 and button == 1 then
                 local user_data = loadData()
@@ -298,6 +333,29 @@ function homeMenuLoop()
             end
             curr_state = 0
             drawHomeMenu()
+        end
+    end
+end
+
+function confirmMenuLoop(location)
+    drawConfirmMenu(location)
+    while true do 
+        local event, button, mx, my = os.pullEvent()
+ 
+        if event == "mouse_click" then 
+            if mx >= 9 and mx <= 11 and my == (y/2)+2 and button == 1 then
+                return false
+            elseif mx >= 15 and mx <= 17 and my == (y/2)+2 and button == 1 then
+                box(6,(y/2)-3,x-6,(y/2)+3,colors.gray)
+                line(6,(y/2)-3,x-6,(y/2)-3,colors.lightGray)
+
+                tCol(colors.lightGray)    
+                bCol(colors.gray)
+                centerPrint("Request",(y/2))
+                centerPrint("Sent",(y/2)+1)
+                os.sleep(2)
+                return true
+            end
         end
     end
 end
