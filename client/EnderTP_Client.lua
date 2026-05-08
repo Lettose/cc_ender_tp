@@ -349,7 +349,7 @@ function confirmMenuLoop(location)
                 box(6,(y/2)-3,x-6,(y/2)+3,colors.gray)
                 line(6,(y/2)-3,x-6,(y/2)-3,colors.lightGray)
 
-                tCol(colors.lightGray)    
+                tCol(colors.green)    
                 bCol(colors.gray)
                 centerPrint("Request",(y/2))
                 centerPrint("Sent",(y/2)+1)
