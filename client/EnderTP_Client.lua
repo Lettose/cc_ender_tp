@@ -8,7 +8,7 @@ local bCol = term.setBackgroundColor
 local rsget = rs.getAnalogInput
 local rsset = rs.setAnalogOutput
  
-
+printRate = 50
 
 x,y = term.getSize()
 curr_state = 0

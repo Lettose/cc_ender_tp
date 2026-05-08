@@ -5,7 +5,7 @@ local cls = term.clear
 cls()
 term.setCursorPos(1,1)
 
-printRate = 35
+printRate = 50
 
 peripheral.find("modem",rednet.open)
 rsset("front",15)
@@ -56,7 +56,7 @@ function loadData()
 end
 
 function tpServer(comp_label,user)
-    rednet.host("tp_request",comp_label)
+    rednet.host("tp_server",comp_label)
     print("Waiting for TP Request..")
     while true do
         local target_id,message,protocol = rednet.receive()
