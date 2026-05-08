@@ -33,7 +33,7 @@ function init()
 
     if fs.exists(filename) then
         user_data = loadData()
-        textutils.slowWrite("User Data Loaded from File.",printRate) 
+        textutils.slowWrite("Loading User Data..",printRate) 
     else
         textutils.slowWrite("Enter Your User: ",printRate)
         user_data.username = read()
@@ -353,7 +353,7 @@ function confirmMenuLoop(location)
                 bCol(colors.gray)
                 centerPrint("Request",(y/2))
                 centerPrint("Sent",(y/2)+1)
-                os.sleep(2)
+                os.sleep(0.5)
                 return true
             end
         end
