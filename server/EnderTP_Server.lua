@@ -1,5 +1,7 @@
 local rsget = rs.getAnalogInput
 local rsset = rs.setAnalogOutput
+local tCol = term.setTextColor
+local bCol = term.setBackgroundColor
 local cls = term.clear
 
 cls()
