@@ -229,7 +229,7 @@ function drawHomeMenu()
         printstr = "[Unset]"
     else
         printstr = user_data.tp3
-        if tp_state.tp2 == "not_avail" then
+        if tp_state.tp3 == "not_avail" then
             bcolor = colors.red
             drawEntry(15,bcolor)
             tCol(colors.white)
