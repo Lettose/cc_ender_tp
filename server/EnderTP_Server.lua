@@ -70,7 +70,8 @@ function loadData()
     return textutils.unserialize(content)
 end
 
-function tpServer(server_data)
+function tpServer()
+    local server_data = loadData()
     rednet.host(tp_protocol,server_data.servername)
     while true do
         local pos_x,pos_y
@@ -78,13 +79,13 @@ function tpServer(server_data)
         pos(2,3)
         tCol(colors.white)
         bCol(colors.black)
-        textutils.slowWrite("Listening for TP Requests..\n\n",printRate)
+        write("Listening for TP Requests..\n\n")
 
         local sender_id,message,protocol = rednet.receive()
         if protocol == "tp_request" and message == server_data.username then
             pos_x,pos_y = getPos()
             pos(pos_x+1,pos_y)
-            textutils.slowWrite("Received TP Request From: "..sender_id.."\n",printRate)
+            write("Received TP Request From: "..sender_id.."\n")
 
             rsset("front",0)
             os.sleep(2)
@@ -92,9 +93,9 @@ function tpServer(server_data)
             
             pos_x,pos_y = getPos()
             pos(pos_x+1,pos_y)
-            textutils.slowWrite("TP Complete!\n",printRate)
+            write("TP Complete!\n")
             
-            os.sleep(1)
+            os.sleep(2)
             drawHomeMenu()
         end
     end
@@ -110,11 +111,12 @@ function centerPrint(printstr,height,sub_len)
     write(printstr)
 end
 
-function drawHomeMenu(server_data)
+function drawHomeMenu()
     local printstr = {
         p1 = nil,
         p2 = nil
     }
+    local server_data = loadData()
     pos(1,1)
     box(1,1,x,y,colors.black) -- Background
 
@@ -128,7 +130,6 @@ function drawHomeMenu(server_data)
     bCol(colors.red)
     write(printstr.p1)
 
-    
     printstr.p1 = "Server Info"
     pos((x/4)-math.floor((string.len(printstr.p1)/2)),(y/1.2)-2)
     tCol(colors.lightGray)
@@ -216,9 +217,8 @@ function main()
     init()
     while true do
         if curr_state == 0 then
-            local server_data = loadData()
-            drawHomeMenu(server_data)
-            parallel.waitForAny(function() tpServer(server_data) end,function() homeMenuLoop(server_data) end)
+            drawHomeMenu()
+            parallel.waitForAny(tpServer,homeMenuLoop)
         elseif curr_state == 1 then
             confirmMenuLoop()
         end
