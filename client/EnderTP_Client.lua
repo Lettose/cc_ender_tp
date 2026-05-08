@@ -42,7 +42,7 @@ function init()
         textutils.slowWrite("Saved to ./"..filename.."\n",printRate)
     end
     os.setComputerLabel(user_data.username)
-    os.sleep(1)
+    os.sleep(0.5)
 
     tp_protocol = tp_protocol .. "_" ..string.lower(user_data.username)
 end

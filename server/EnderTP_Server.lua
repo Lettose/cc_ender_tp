@@ -1,14 +1,21 @@
-local rsget = rs.getAnalogInput
-local rsset = rs.setAnalogOutput
+local pos = term.setCursorPos
+local getPos = term.getCursorPos
+local cls = term.clear
+local box = paintutils.drawFilledBox
+local outline = paintutils.drawBox
+local line = paintutils.drawLine 
 local tCol = term.setTextColor
 local bCol = term.setBackgroundColor
-local cls = term.clear
+local rsget = rs.getAnalogInput
+local rsset = rs.setAnalogOutput
 
 cls()
 term.setCursorPos(1,1)
 
 printRate = 60
 tp_protocol = "tp_server"
+curr_state = 0
+x,y = term.getSize()
 
 peripheral.find("modem",rednet.open)
 rsset("front",15)
@@ -37,12 +44,12 @@ function init()
         saveData(server_data)
         textutils.slowWrite("Saved to ./"..filename.."\n",printRate)
     end
-    os.sleep(2)
+    os.sleep(0.5)
     cls()
     term.setCursorPos(1,1)
 
     tp_protocol = tp_protocol .. "_" ..string.lower(server_data.username)
-    return server_data.servername,server_data.username
+    return
 end
 
 function saveData(data)
@@ -63,23 +70,159 @@ function loadData()
     return textutils.unserialize(content)
 end
 
-function tpServer(comp_label,user)
-    rednet.host(tp_protocol,comp_label)
-    print("Waiting for TP Request..")
+function tpServer(server_data)
+    rednet.host(tp_protocol,server_data.servername)
     while true do
+        local pos_x,pos_y
+
+        pos(2,3)
+        tCol(colors.white)
+        bCol(colors.black)
+        textutils.slowWrite("Listening for TP Requests..\n\n",printRate)
+
         local sender_id,message,protocol = rednet.receive()
-        
-        if protocol == "tp_request" and message == user then
-            print("\nReceived TP Request.")
+        if protocol == "tp_request" and message == server_data.username then
+            pos_x,pos_y = getPos()
+            pos(pos_x+1,pos_y)
+            textutils.slowWrite("Received TP Request From: "..sender_id.."\n",printRate)
 
             rsset("front",0)
             os.sleep(2)
             rsset("front",15)
             
-            print("TP Complete!")
+            pos_x,pos_y = getPos()
+            pos(pos_x+1,pos_y)
+            textutils.slowWrite("TP Complete!\n",printRate)
+            
+            os.sleep(1)
+            drawHomeMenu()
+        end
+    end
+end
+
+function centerPrint(printstr,height,sub_len)
+    sub_len = sub_len or 9
+
+    printstr = string.sub(printstr,1,sub_len)
+    local str_len = string.len(printstr)
+
+    pos(math.ceil((x-str_len)/2),height)
+    write(printstr)
+end
+
+function drawHomeMenu(server_data)
+    local printstr = {
+        p1 = nil,
+        p2 = nil
+    }
+    pos(1,1)
+    box(1,1,x,y,colors.black) -- Background
+
+    outline(1,1,x,y,colors.gray)
+    box(1,(y/1.5),x,y,colors.gray)
+
+    box((x/1.3)-5,y/1.2-1,(x/1.3)+5,(y/1.2)+1,colors.red)
+    printstr.p1 = "RESET"
+    pos((x/1.3)-math.floor((string.len(printstr.p1)/2)),(y/1.2))
+    tCol(colors.white)
+    bCol(colors.red)
+    write(printstr.p1)
+
+    
+    printstr.p1 = "Server Info"
+    pos((x/4)-math.floor((string.len(printstr.p1)/2)),(y/1.2)-2)
+    tCol(colors.lightGray)
+    bCol(colors.gray)
+    write(printstr.p1)
+
+    printstr.p1 = "TP Name: "
+    printstr.p2 = server_data.servername
+    pos((x/4)-math.floor((string.len(printstr.p1..printstr.p2)/2)),(y/1.2))
+    tCol(colors.orange)
+    bCol(colors.gray)
+    write(printstr.p1)
+    tCol(colors.white)
+    write(printstr.p2)
+
+    printstr.p1 = "User: "
+    printstr.p2 = server_data.username
+    pos((x/4)-math.floor((string.len(printstr.p1..printstr.p2)/2)),(y/1.2)+1)
+    tCol(colors.orange)
+    bCol(colors.gray)
+    write(printstr.p1)
+    tCol(colors.white)
+    write(printstr.p2)
+end
+
+function drawConfirmMenu()
+    pos(1,1)
+    box(1,1,x,y,colors.black) -- Background
+
+    box((x/2)-7,(y/2)-2,(x/2)+7,(y/2)+3,colors.gray)
+    line((x/2)-7,(y/2)-2,(x/2)+7,(y/2)-2,colors.lightGray)
+
+    tCol(colors.lightGray)    
+    bCol(colors.gray)
+    centerPrint("Are you sure?",(y/2),20)
+
+    box((x/2)-5,(y/2)+2,(x/2)-3,(y/2)+2,colors.red)
+    box((x/2)+3,(y/2)+2,(x/2)+5,(y/2)+2,colors.green)
+
+    pos((x/2)-4,(y/2)+2)
+    tCol(colors.white)    
+    bCol(colors.red)
+    write("x")
+
+    pos((x/2)+4,(y/2)+2)
+    tCol(colors.white)    
+    bCol(colors.green)
+    write("o")
+end
+
+function homeMenuLoop(server_data)
+    while true do
+        local event, button, mx, my = os.pullEvent()
+ 
+        if event == "mouse_click" then 
+            if mx >= (x/1.3)-6 and mx <= (x/1.3)+5 and my >= (y/1.2)-2 and my <= (y/1.2)+1 and button == 1 then
+               curr_state = 1
+               break
+            end
+        end
+    end
+end
+
+function confirmMenuLoop()
+    drawConfirmMenu()
+    while true do
+        local event, button, mx, my = os.pullEvent()
+ 
+        if event == "mouse_click" then 
+            if mx >= (x/2)-6 and mx <= (x/2)-3 and my == math.floor((y/2)+2) and button == 1 then
+               curr_state = 0
+               break
+            elseif mx >= (x/2)+2 and mx <= (x/2)+5 and my == math.floor((y/2)+2) and button == 1 then
+               local filename = "server_data.txt"
+               fs.delete(filename)
+               os.reboot()
+               break
+            end
         end
     end
 end
 
 
-tpServer(init())
+function main()
+    init()
+    while true do
+        if curr_state == 0 then
+            local server_data = loadData()
+            drawHomeMenu(server_data)
+            parallel.waitForAny(function() tpServer(server_data) end,function() homeMenuLoop(server_data) end)
+        elseif curr_state == 1 then
+            confirmMenuLoop()
+        end
+    end
+end
+
+main()
