@@ -8,7 +8,7 @@ local bCol = term.setBackgroundColor
 local rsget = rs.getAnalogInput
 local rsset = rs.setAnalogOutput
  
-printRate = 50
+printRate = 60
 
 x,y = term.getSize()
 curr_state = 0
@@ -17,6 +17,8 @@ tp_state = {
     tp2 = nil,
     tp3 = nil
 }
+
+tp_protocol = "tp_server"
  
 peripheral.find("modem",rednet.open)
 
@@ -41,6 +43,8 @@ function init()
     end
     os.setComputerLabel(user_data.username)
     os.sleep(1)
+
+    tp_protocol = tp_protocol .. "_" ..string.lower(user_data.username)
 end
 
 function checkValidTP()
@@ -48,7 +52,7 @@ function checkValidTP()
         local user_data = loadData()
 
         if user_data.tp1 then
-            if not rednet.lookup("tp_server",user_data.tp1) then
+            if not rednet.lookup(tp_protocol,user_data.tp1) then
                 tp_state.tp1 = "not_avail"
             else
                 tp_state.tp1 = "avail"
@@ -58,7 +62,7 @@ function checkValidTP()
         end
 
         if user_data.tp2 then
-            if not rednet.lookup("tp_server",user_data.tp2) then
+            if not rednet.lookup(tp_protocol,user_data.tp2) then
                 tp_state.tp2 = "not_avail"
             else
                 tp_state.tp2 = "avail"
@@ -68,7 +72,7 @@ function checkValidTP()
         end
 
         if user_data.tp3 then
-            if not rednet.lookup("tp_server",user_data.tp3) then
+            if not rednet.lookup(tp_protocol,user_data.tp3) then
                 tp_state.tp3 = "not_avail"
             else
                 tp_state.tp3 = "avail"
@@ -102,7 +106,7 @@ end
 
 function sendRequest(tp_server,user)
     os.sleep(2)
-    local server_id = rednet.lookup("tp_server",tp_server)
+    local server_id = rednet.lookup(tp_protocol,tp_server)
     rednet.send(server_id,user,"tp_request")
 end
  
@@ -232,7 +236,7 @@ function homeMenuLoop()
                     tCol(colors.orange)
                     bCol(colors.black)
 
-                    textutils.slowWrite("Enter TP 1 Name \n[max 9 chars]: ")
+                    textutils.slowWrite("Enter TP Name \n[max 9 chars]: ")
                     tCol(colors.white)
                     user_data.tp1 = string.sub(read(),1,9)
 
@@ -255,7 +259,7 @@ function homeMenuLoop()
                     tCol(colors.orange)
                     bCol(colors.black)
 
-                    textutils.slowWrite("Enter TP 2 Name \n[max 9 chars]: ")
+                    textutils.slowWrite("Enter TP Name \n[max 9 chars]: ")
                     tCol(colors.white)
                     user_data.tp2 = string.sub(read(),1,9)
 
@@ -278,7 +282,7 @@ function homeMenuLoop()
                     tCol(colors.orange)
                     bCol(colors.black)
 
-                    textutils.slowWrite("Enter TP 3 Name \n[max 9 chars]: ")
+                    textutils.slowWrite("Enter TP Name \n[max 9 chars]: ")
                     tCol(colors.white)
                     user_data.tp3 = string.sub(read(),1,9)
 
