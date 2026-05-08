@@ -35,7 +35,9 @@ function init()
         user_data = loadData()
         textutils.slowWrite("Loading User Data..",printRate) 
     else
+        tCol(colors.orange)
         textutils.slowWrite("Enter Your User: ",printRate)
+        tCol(colors.white)
         user_data.username = read()
         
         saveData(user_data)
