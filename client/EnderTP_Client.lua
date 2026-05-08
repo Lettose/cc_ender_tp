@@ -19,8 +19,6 @@ tp_state = {
 }
  
 peripheral.find("modem",rednet.open)
-tp_server = rednet.lookup("tp_server","tp_host")
-
 
 function init()
     local user_data = {
@@ -102,14 +100,10 @@ function loadData()
     return textutils.unserialize(content)
 end
 
-function sendRequest()
-    textutils.slowWrite("TP Request Sent",printRate)
+function sendRequest(tp_server,user)
     os.sleep(2)
-    rednet.send(tp_server,true,"tp_request")
-    
-    os.sleep(5)
-    cls()
-    term.setCursorPos(1,1)
+    local server_id = rednet.lookup("tp_server",tp_server)
+    rednet.send(server_id,user,"tp_request")
 end
  
 function drawEntry(height,bcolor)
@@ -244,7 +238,7 @@ function homeMenuLoop()
 
                     saveData(user_data)
                 else
-                    -- Send TP Request
+                    sendRequest(user_data.tp1,user_data.username)
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 5 and button == 1 then
                 local user_data = loadData()
@@ -267,7 +261,7 @@ function homeMenuLoop()
 
                     saveData(user_data)
                 else
-                    -- Send TP Request
+                    sendRequest(user_data.tp2,user_data.username)
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 10 and button == 1 then
                 local user_data = loadData()
@@ -290,7 +284,7 @@ function homeMenuLoop()
 
                     saveData(user_data)
                 else
-                    -- Send TP Request
+                    sendRequest(user_data.tp3,user_data.username)
                 end
             elseif mx >= x-10 and mx <= x-8 and my == 15 and button == 1 then
                 local user_data = loadData()
@@ -307,8 +301,6 @@ end
 
 
 function main()
-    cls()
-    pos(1,1)
     while true do
         if curr_state == 0 then
             cls()
@@ -317,5 +309,7 @@ function main()
     end
 end
 
+cls()
+pos(1,1)
 init()
 parallel.waitForAll(main,checkValidTP)

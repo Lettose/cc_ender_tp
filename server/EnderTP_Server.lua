@@ -30,10 +30,7 @@ function init()
         saveData(server_data)
         textutils.slowWrite("Saved to ./"..filename.."\n",printRate)
     end
-    os.setComputerLabel(server_data.servername)
-    rednet.host("tp_request",server_data.servername)
     os.sleep(2)
-
     cls()
     term.setCursorPos(1,1)
 
@@ -59,21 +56,19 @@ function loadData()
 end
 
 function tpServer(comp_label,user)
+    rednet.host("tp_request",comp_label)
+    print("Waiting for TP Request..")
     while true do
-        textutils.slowWrite("Waiting for TP Request..\n\n",printRate)
         local target_id,message,protocol = rednet.receive()
-        textutils.slowWrite("Recieved Message: "..target_id,printRate)
         
-        if protocol == "tp_request" and message == comp_label then
-            textutils.slowWrite("Message is a TP Request!\n",printRate)
+        if protocol == "tp_request" and message == user then
+            print("Received TP Request.")
 
             rsset("front",0)
             os.sleep(2)
             rsset("front",15)
             
-            textutils.slowWrite("Done!\n",printRate)
-        else
-            textutils.slowWrite("Invalid Request\n",printRate)
+            print("TP Complete!")
         end
     end
 end
