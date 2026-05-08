@@ -5,7 +5,7 @@ local cls = term.clear
 cls()
 term.setCursorPos(1,1)
 
-printRate = 50
+printRate = 60
 
 peripheral.find("modem",rednet.open)
 rsset("front",15)
@@ -21,10 +21,14 @@ function init()
         server_data = loadData()
         textutils.slowWrite("Data Loaded from File.",printRate) 
     else
+        tCol(colors.orange)
         textutils.slowWrite("Enter The TP Name: ",printRate)
+        tCol(colors.white)
         server_data.servername = read()
 
+        tCol(colors.orange)
         textutils.slowWrite("Enter Your User: ",printRate)
+        tCol(colors.white)
         server_data.username = read()
         
         saveData(server_data)
@@ -61,8 +65,8 @@ function tpServer(comp_label,user)
     while true do
         local target_id,message,protocol = rednet.receive()
         
-        if protocol == "tp_request" and message == user then
-            print("Received TP Request.")
+        if protocol == "tp_request" and target_id == os.getComputerID() and message == user then
+            print("\nReceived TP Request.")
 
             rsset("front",0)
             os.sleep(2)
