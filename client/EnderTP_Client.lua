@@ -172,7 +172,11 @@ function drawHomeMenu()
  
     tCol(colors.orange)
     bCol(colors.black)
-    centerPrint("TP Menu",3)
+    centerPrint("TP Menu",2)
+
+    tCol(colors.white)
+    bCol(colors.black)
+    centerPrint(user_data.username,3)
 
     if not user_data.tp1 then
         drawEntry(5)
